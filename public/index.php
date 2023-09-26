@@ -70,6 +70,10 @@
 
 <?php
 
+require './functions/translit.php';
+
+const NEW_COLUMN_FOR_IMPORT_TABLE = "XML_ID";
+
 if (isset($_POST['productName'], $_POST['formatName'], $_POST['pathImg'], $_POST['selectSeparator'])) {
 //очищаем массивы от пустых значений
     $formatName = array_diff($_POST['formatName'], array(""));
@@ -101,12 +105,15 @@ if (isset($_POST['productName'], $_POST['formatName'], $_POST['pathImg'], $_POST
 // Изменение значений в столбцах preview_picture и detail_picture
     $count = 0;
 
+    $arrayRowsForNewFile = [];
+
     foreach ($formatName as $key => $format) {
         foreach ($tableData as &$row) {
             if ($row[array_search('IE_NAME', $headers)] == $_POST['productName'] && $row[array_search('IP_PROP1295', $headers)] ==  $format ) {
                 $row[$preview_picture_index] = $pathImg[$key];
                 $row[$detail_picture_index] = $pathImg[$key];
 
+                array_unshift($arrayRowsForNewFile, $row);
                 $count++;
             }
         }
@@ -117,14 +124,16 @@ if (isset($_POST['productName'], $_POST['formatName'], $_POST['pathImg'], $_POST
         exit();
     }
 
+    $newFileName = getConvertString($_POST['productName']);
+
 // Открытие файла для записи измененных данных
-    $file = fopen('../tables/output.csv', 'w');
+    $file = fopen('../tables/' . $newFileName . '.csv', 'w');
 
 // Запись заголовков столбцов
     fputcsv($file, $headers, $_POST['selectSeparator']);
 
 // Запись измененных строк таблицы
-    foreach ($tableData as $row) {
+    foreach ($arrayRowsForNewFile as $row) {
         fputcsv($file, $row,  $_POST['selectSeparator']);
     }
 
