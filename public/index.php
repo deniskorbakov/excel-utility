@@ -9,17 +9,16 @@
     <title>Document</title>
 </head>
 <body>
-
 <center>
     <form action="" method="POST">
-<!--        <div style="margin-top: 30px">-->
-<!--            <button class="add-button" style="color: aquamarine" type="button">Добавить еще 3 поля</button>-->
-<!--        </div>-->
-
         <div style="margin-top: 50px" class="input-wrapper">
             <input type="text" name="productName" placeholder="Введите название товара">
             <input type="text" name="formatName" placeholder="Введите формат товара">
             <input type="text" name="pathImg" placeholder="Введите путь для замены">
+            <select name="selectSeparator">
+                <option value=";">Разделить знаком - ( ; )</option>
+                <option value="," selected>Разделить знаком - ( , )</option>
+            </select>
 
         </div>
 
@@ -29,36 +28,23 @@
 
     </form>
 </center>
-
-<script>
-    let inputWrapper = document.querySelector('.input-wrapper');
-    let addButton = document.querySelector('.add-button');
-
-    addButton.addEventListener('click', function() {
-        let newInput = document.createElement('div');
-        newInput.innerHTML = '<br><input type="text" name="productName[]" placeholder="Введите название товара"> <input type="text" name="formatName[]" placeholder="Введите формат товара"> <input type="text" name="pathImg[]" placeholder="Введите путь для замены">';
-        inputWrapper.appendChild(newInput);
-    });
-
-
-</script>
 </body>
 </html>
 
 <?php
 
-if (isset($_POST['productName']) && $_POST['formatName'] && $_POST['pathImg']) {
+if (isset($_POST['productName'], $_POST['formatName'], $_POST['pathImg'], $_POST['selectSeparator'])) {
     // Открытие файла с данными
     $file = fopen('../tables/lioni.csv', 'r+');
 
 // Чтение заголовков столбцов
-    $headers = fgetcsv($file);
+    $headers = fgetcsv($file, null, $_POST['selectSeparator']);
 
 // Инициализация массива для хранения данных таблицы
     $tableData = array();
 
 // Чтение строк таблицы и добавление их в массив
-    while ($row = fgetcsv($file)) {
+    while ($row = fgetcsv($file, null, $_POST['selectSeparator'])) {
         $tableData[] = $row;
     }
 
@@ -71,12 +57,11 @@ if (isset($_POST['productName']) && $_POST['formatName'] && $_POST['pathImg']) {
 // Нахождение индекса столбца detail_picture
     $detail_picture_index = array_search('IE_DETAIL_PICTURE', $headers);
 
-
 // Изменение значений в столбцах preview_picture и detail_picture
     $count = 0;
 
     foreach ($tableData as &$row) {
-        if ($row[array_search('IE_NAME', $headers)] == $_POST['productName'] && $row[array_search('IP_PROP1267', $headers)] ==  $_POST['formatName'] ) {
+        if ($row[array_search('IE_NAME', $headers)] == $_POST['productName'] && $row[array_search('IP_PROP1295', $headers)] ==  $_POST['formatName'] ) {
             $row[$preview_picture_index] = $_POST['pathImg'];
             $row[$detail_picture_index] = $_POST['pathImg'];
 
@@ -90,14 +75,14 @@ if (isset($_POST['productName']) && $_POST['formatName'] && $_POST['pathImg']) {
     }
 
 // Открытие файла для записи измененных данных
-    $file = fopen('../tables/output.csv', 'w');
+    $file = fopen('../tables/output.csv', 'r+');
 
 // Запись заголовков столбцов
-    fputcsv($file, $headers);
+    fputcsv($file, $headers, $_POST['selectSeparator']);
 
 // Запись измененных строк таблицы
     foreach ($tableData as $row) {
-        fputcsv($file, $row);
+        fputcsv($file, $row,  $_POST['selectSeparator']);
     }
 
 // Закрытие файла
