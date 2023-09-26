@@ -11,23 +11,42 @@
 <body>
 <center>
     <form action="" method="POST">
+        <div>
+            <button class="add-button" style="padding: 10px; font-size: 20px; color: #ffffff; background-color: #80109f; border: none;" type="button">Добавить еще поля</button>
+        </div>
+
+        <div style="margin-top: 30px">
+            <input type="text" name="productName" placeholder="Введите название товара" style="width: 500px;">
+        </div>
+
         <div style="margin-top: 50px" class="input-wrapper">
-            <input type="text" name="productName" placeholder="Введите название товара">
-            <input type="text" name="formatName" placeholder="Введите формат товара">
-            <input type="text" name="pathImg" placeholder="Введите путь для замены">
-            <select name="selectSeparator">
+            <input type="text" name="formatName[]" placeholder="Введите формат товара">
+            <input type="text" name="pathImg[]" placeholder="Введите путь для замены">
+        </div>
+
+        <div style="margin-top: 50px;">
+            <button style="padding: 10px; font-size: 20px; color: #ffffff; background-color: #11b814; border: none;" type="submit">Добавить поля в таблицу</button>
+
+            <select name="selectSeparator" style="padding: 10px; font-size: 20px; color: #ffffff; background-color: rgba(0,0,0,0.5); border: none;">
                 <option value=";">Разделить знаком - ( ; )</option>
                 <option value="," selected>Разделить знаком - ( , )</option>
             </select>
-
-        </div>
-
-        <div style="margin-top: 20px;">
-            <button style="padding: 10px; font-size: 20px; color: #8b2ae5; background-color: aqua; border: none;" type="submit">submit</button>
         </div>
 
     </form>
 </center>
+
+<script>
+    let inputWrapper = document.querySelector('.input-wrapper');
+    let addButton = document.querySelector('.add-button');
+
+    addButton.addEventListener('click', function() {
+        let newInput = document.createElement('div');
+        newInput.innerHTML = '<br> <input type="text" name="formatName[]" placeholder="Введите формат товара"> <input type="text" name="pathImg[]" placeholder="Введите путь для замены">';
+        inputWrapper.appendChild(newInput);
+    });
+
+</script>
 </body>
 </html>
 
@@ -60,12 +79,14 @@ if (isset($_POST['productName'], $_POST['formatName'], $_POST['pathImg'], $_POST
 // Изменение значений в столбцах preview_picture и detail_picture
     $count = 0;
 
-    foreach ($tableData as &$row) {
-        if ($row[array_search('IE_NAME', $headers)] == $_POST['productName'] && $row[array_search('IP_PROP1295', $headers)] ==  $_POST['formatName'] ) {
-            $row[$preview_picture_index] = $_POST['pathImg'];
-            $row[$detail_picture_index] = $_POST['pathImg'];
+    foreach ($_POST['formatName'] as $key => $format) {
+        foreach ($tableData as &$row) {
+            if ($row[array_search('IE_NAME', $headers)] == $_POST['productName'] && $row[array_search('IP_PROP1295', $headers)] ==  $format ) {
+                $row[$preview_picture_index] = $_POST['pathImg'][$key];
+                $row[$detail_picture_index] = $_POST['pathImg'][$key];
 
-            $count++;
+                $count++;
+            }
         }
     }
 
