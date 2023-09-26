@@ -9,52 +9,90 @@
     <title>Document</title>
 </head>
 <body>
-<form action="">
-    <input type="text" placeholder="Введите искомое значение">
-    <input type="text" placeholder="Введите искомое значение">
-    <input type="text" placeholder="Введите строку на замену">
 
-    <button>submit</button>
-</form>
+<center>
+    <form action="" method="POST">
+        <div style="margin-top: 50px">
+            <input type="text" name="productName" placeholder="Введите название товара">
+            <input type="text" name="formatName" placeholder="Введите формат товара">
+            <input type="text" name="pathImg" placeholder="Введите путь для замены">
+
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button style="padding: 10px; font-size: 20px; color: #8b2ae5; background-color: aqua; border: none;" type="submit">submit</button>
+        </div>
+
+    </form>
+</center>
+
 </body>
 </html>
 
 <?php
-//Прочитать csv-файл в массив, обработать необходимую ячейку массива, и перезаписать csv-файл:
 
-// Искомое значение
-$need = 'вилка';
-// Строка для замены
-$repl = 'Большая вилка';
-// Путь к csv-файлу
-$csv_file = 'data/file.csv';
+if (isset($_POST['productName']) && $_POST['formatName'] && $_POST['pathImg']) {
+    // Открытие файла с данными
+    $file = fopen('../tables/lioni.csv', 'r+');
 
-// Новый массив с данными для записи в csv-файл
-$csv_new = [];
+// Чтение заголовков столбцов
+    $headers = fgetcsv($file);
 
-// Если файл доступен для чтения
-if (($fp = fopen($csv_file, 'r')) !== false) {
-    // Читать построчно, сохраняя каждую его строку во временный массив
-    while (($arr = fgetcsv($fp, 1000, ',')) !== false) {
-        // Если найдено искомое значение
-        if (($k = array_search($need, $arr)) !== false) {
-            // Перезаписать ячейку массива
-            $arr[$k] = $repl;
+// Инициализация массива для хранения данных таблицы
+    $tableData = array();
+
+// Чтение строк таблицы и добавление их в массив
+    while ($row = fgetcsv($file)) {
+        $tableData[] = $row;
+    }
+
+// Закрытие файла
+    fclose($file);
+
+// Нахождение индекса столбца preview_picture
+    $preview_picture_index = array_search('IE_PREVIEW_PICTURE', $headers);
+
+// Нахождение индекса столбца detail_picture
+    $detail_picture_index = array_search('IE_DETAIL_PICTURE', $headers);
+
+    if (isset($preview_picture_index, $detail_picture_index)) {
+        echo '<center style="margin-top: 30px;"> <h3>Не найдены индексы для картинок</h3> </center>';
+        exit();
+    }
+
+
+// Изменение значений в столбцах preview_picture и detail_picture
+    $count = 0;
+
+    foreach ($tableData as &$row) {
+        if ($row[array_search('IE_NAME', $headers)] == $_POST['productName'] && $row[array_search('IP_PROP1267', $headers)] ==  $_POST['formatName'] ) {
+            $row[$preview_picture_index] = $_POST['pathImg'];
+            $row[$detail_picture_index] = $_POST['pathImg'];
+
+            $count++;
         }
-        // Сохранить временный массив в новый двумерный массив
-        $csv_new[] = $arr;
     }
-    fclose($fp);
+
+
+// Открытие файла для записи измененных данных
+    $file = fopen('../tables/output.csv', 'w');
+
+// Запись заголовков столбцов
+    fputcsv($file, $headers);
+
+// Запись измененных строк таблицы
+    foreach ($tableData as $row) {
+        fputcsv($file, $row);
+    }
+
+// Закрытие файла
+    fclose($file);
+
+    echo '<center style="margin-top: 30px;"> <h3>кол-во измененных записей</h3> - ' . $count . '</center>' ;
+
+} else {
+   echo '<center style="margin-top: 30px;"> <h3>Вставьте все данные</h3> </center>';
 }
 
-// Если файл доступен для записи
-if (($fp = fopen($csv_file, 'w')) !== false) {
-    // Проходим по массиву
-    foreach ($csv_new as $fields) {
-        // И пишем данные в csv-файл
-        fputcsv($fp, $fields);
-    }
-    fclose($fp);
-}
 
 
