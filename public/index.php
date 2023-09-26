@@ -43,7 +43,6 @@
                 <option value="," selected>Разделить знаком - ( , )</option>
             </select>
         </div>
-
     </form>
 </center>
 
@@ -125,6 +124,7 @@ if (isset($_POST['productName'], $_POST['formatName'], $_POST['pathImg'], $_POST
     }
 
     $newFileName = getConvertString($_POST['productName']);
+    $newFilePath = '../tables/' . $newFileName . '.csv';
 
 // Открытие файла для записи измененных данных
     $file = fopen('../tables/' . $newFileName . '.csv', 'w');
@@ -141,7 +141,6 @@ if (isset($_POST['productName'], $_POST['formatName'], $_POST['pathImg'], $_POST
     fclose($file);
 
     echo '<center style="margin-top: 30px; color: white;"> <h3>кол-во измененных записей</h3>' . $count . '</center>' ;
-
 } else {
    echo '<center style="margin-top: 30px; color: white;"> <h3>Вставьте все данные</h3> </center>';
 }
