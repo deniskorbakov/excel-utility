@@ -12,7 +12,11 @@
 
 <center>
     <form action="" method="POST">
-        <div style="margin-top: 50px">
+<!--        <div style="margin-top: 30px">-->
+<!--            <button class="add-button" style="color: aquamarine" type="button">Добавить еще 3 поля</button>-->
+<!--        </div>-->
+
+        <div style="margin-top: 50px" class="input-wrapper">
             <input type="text" name="productName" placeholder="Введите название товара">
             <input type="text" name="formatName" placeholder="Введите формат товара">
             <input type="text" name="pathImg" placeholder="Введите путь для замены">
@@ -26,6 +30,18 @@
     </form>
 </center>
 
+<script>
+    let inputWrapper = document.querySelector('.input-wrapper');
+    let addButton = document.querySelector('.add-button');
+
+    addButton.addEventListener('click', function() {
+        let newInput = document.createElement('div');
+        newInput.innerHTML = '<br><input type="text" name="productName[]" placeholder="Введите название товара"> <input type="text" name="formatName[]" placeholder="Введите формат товара"> <input type="text" name="pathImg[]" placeholder="Введите путь для замены">';
+        inputWrapper.appendChild(newInput);
+    });
+
+
+</script>
 </body>
 </html>
 
@@ -55,11 +71,6 @@ if (isset($_POST['productName']) && $_POST['formatName'] && $_POST['pathImg']) {
 // Нахождение индекса столбца detail_picture
     $detail_picture_index = array_search('IE_DETAIL_PICTURE', $headers);
 
-    if (isset($preview_picture_index, $detail_picture_index)) {
-        echo '<center style="margin-top: 30px;"> <h3>Не найдены индексы для картинок</h3> </center>';
-        exit();
-    }
-
 
 // Изменение значений в столбцах preview_picture и detail_picture
     $count = 0;
@@ -73,6 +84,10 @@ if (isset($_POST['productName']) && $_POST['formatName'] && $_POST['pathImg']) {
         }
     }
 
+    if ($count == 0) {
+        echo '<center style="margin-top: 30px;"> <h3>Не найдены товары</h3> </center>';
+        exit();
+    }
 
 // Открытие файла для записи измененных данных
     $file = fopen('../tables/output.csv', 'w');
