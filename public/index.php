@@ -123,8 +123,17 @@ if (isset($_POST['productName'], $_POST['formatName'])) {
                 $row[$previewPictureIndex] = $mainPathForImages . $pathImg[$key];
                 $row[$detailPictureIndex] = $mainPathForImages . $pathImg[$key];
 
-                // получаем только цифры поля
-                $row[$newColumn] = preg_replace('/\D+/', '', $row[$idProduct]);
+                //получаем цифры только в крадратных скобках
+                preg_match("/\[(\d+)\]/", $row[$idProduct], $matches);
+
+                //проверка чтобы не выпадала ошибка неизвестного ключа
+                if (!isset($matches[1])) {
+                    $result = null;
+                } else {
+                    $result = $matches[1];
+                }
+
+                $row[$newColumn] = $result;
 
                 // добавляем изменненыую колонку в массив
                 array_unshift($arrayRowsForNewFile, $row);
