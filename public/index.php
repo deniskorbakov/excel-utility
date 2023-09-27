@@ -27,11 +27,19 @@
         </div>
 
         <div style="margin-top: 30px">
+            <p style="color: white; font-size: 20px">Поле для товара к которому вы хотите добавить картинки</p>
+
             <input type="text" name="productName" placeholder="Введите название товара" style="width: 500px;">
         </div>
 
+        <div style="margin-top: 30px">
+            <p style="color: white; font-size: 20px">Поле для директории в которой хранятся картинки</p>
+
+            <input type="text" name="imgMainPath" placeholder="Введите путь где хранятся картинки" style="width: 500px;">
+        </div>
+
         <div style="margin-top: 50px" class="input-wrapper">
-            <input type="text" name="formatName[]" placeholder="Введите формат товара">
+            <input id="format" type="text" name="formatName[]" placeholder="Введите формат товара">
             <input type="text" name="pathImg[]" placeholder="Введите путь для замены">
         </div>
 
@@ -59,21 +67,21 @@
     });
 
     deleteInputs.addEventListener('click', function() {
-        let newInputs = document.querySelector('.inputs');
-
-        newInputs.remove();
+        let newInputs = document.querySelectorAll('.inputs');
+        let lastInput = newInputs[newInputs.length-1];
+        lastInput.remove();
     });
 </script>
 </body>
 </html>
 
 <?php
-
+die();
 require './functions/translit.php';
 
 const NEW_COLUMN_FOR_IMPORT_TABLE = "XML_ID";
 
-if (isset($_POST['productName'], $_POST['formatName'], $_POST['pathImg'], $_POST['selectSeparator'])) {
+if (isset($_POST['productName'], $_POST['formatName'], $_POST['pathImg'], $_POST['selectSeparator'], $_POST['imgMainPath'])) {
 //очищаем массивы от пустых значений
     $formatName = array_diff($_POST['formatName'], array(""));
     $pathImg = array_diff($_POST['pathImg'], array(""));
@@ -106,11 +114,13 @@ if (isset($_POST['productName'], $_POST['formatName'], $_POST['pathImg'], $_POST
 
     $arrayRowsForNewFile = [];
 
+    $mainPathForImages = substr($_POST['imgMainPath'],0,-1);
+
     foreach ($formatName as $key => $format) {
         foreach ($tableData as &$row) {
             if ($row[array_search('IE_NAME', $headers)] == $_POST['productName'] && $row[array_search('IP_PROP1295', $headers)] ==  $format ) {
-                $row[$preview_picture_index] = $pathImg[$key];
-                $row[$detail_picture_index] = $pathImg[$key];
+                $row[$preview_picture_index] = $mainPathForImages . '/' . $pathImg[$key];
+                $row[$detail_picture_index] = $mainPathForImages . '/' . $pathImg[$key];
 
                 array_unshift($arrayRowsForNewFile, $row);
                 $count++;
