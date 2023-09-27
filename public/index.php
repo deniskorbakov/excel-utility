@@ -127,7 +127,7 @@ if (isset($_POST['productName'], $_POST['formatName'], $_POST['pathImg'], $_POST
     $newFilePath = '../tables/' . $newFileName . '.csv';
 
 // Открытие файла для записи измененных данных
-    $file = fopen('../tables/' . $newFileName . '.csv', 'w');
+    $file = fopen('../tables/' . str_replace('/', '-', $newFileName) . '.csv', 'w');
 
 // Запись заголовков столбцов
     fputcsv($file, $headers, $_POST['selectSeparator']);
