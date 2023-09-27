@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -76,81 +75,87 @@
 </html>
 
 <?php
-die();
+
 require './functions/translit.php';
-
 const NEW_COLUMN_FOR_IMPORT_TABLE = "XML_ID";
+const ID_PRODUCT_FOR_SUCCESS_IMPORT_TABLE = "IP_PROP1085";
+const REPLACEMENT_ROW_IMAGE_PREVIEW = 'IE_PREVIEW_PICTURE';
+const REPLACEMENT_ROW_IMAGE_DETAIL = 'IE_DETAIL_PICTURE';
 
-if (isset($_POST['productName'], $_POST['formatName'], $_POST['pathImg'], $_POST['selectSeparator'], $_POST['imgMainPath'])) {
-//очищаем массивы от пустых значений
+if (isset($_POST['productName'], $_POST['formatName'])) {
+    //убираем пустые строки
     $formatName = array_diff($_POST['formatName'], array(""));
     $pathImg = array_diff($_POST['pathImg'], array(""));
 
-// Открытие файла с данными
     $file = fopen('../tables/lioni.csv', 'r+');
 
-// Чтение заголовков столбцов
-    $headers = fgetcsv($file, null, $_POST['selectSeparator']);
+    $headersTable = fgetcsv($file, null, $_POST['selectSeparator']);
 
-// Инициализация массива для хранения данных таблицы
     $tableData = array();
 
-// Чтение строк таблицы и добавление их в массив
+    // Чтение строк таблицы и добавление их в массив
     while ($row = fgetcsv($file, null, $_POST['selectSeparator'])) {
         $tableData[] = $row;
     }
 
-// Закрытие файла
     fclose($file);
 
-// Нахождение индекса столбца preview_picture
-    $preview_picture_index = array_search('IE_PREVIEW_PICTURE', $headers);
+    //получение индексов которые нужно изменить
+    $previewPictureIndex = array_search(REPLACEMENT_ROW_IMAGE_PREVIEW, $headersTable);
+    $detailPictureIndex = array_search(REPLACEMENT_ROW_IMAGE_DETAIL, $headersTable);
 
-// Нахождение индекса столбца detail_picture
-    $detail_picture_index = array_search('IE_DETAIL_PICTURE', $headers);
-
-// Изменение значений в столбцах preview_picture и detail_picture
-    $count = 0;
+    $countChangeRows = 0;
 
     $arrayRowsForNewFile = [];
 
-    $mainPathForImages = substr($_POST['imgMainPath'],0,-1);
+    //добавляем слеш для пути к картинкам
+    $mainPathForImages = $_POST['imgMainPath'] . '/';
+
+    //добавляем новый заголовк xml_id
+    $newColumn = array_push($headersTable, NEW_COLUMN_FOR_IMPORT_TABLE);
+
+    //получаем id поля с которого мы бдуем брать id
+    $idProduct = array_search(ID_PRODUCT_FOR_SUCCESS_IMPORT_TABLE, $headersTable);
 
     foreach ($formatName as $key => $format) {
         foreach ($tableData as &$row) {
-            if ($row[array_search('IE_NAME', $headers)] == $_POST['productName'] && $row[array_search('IP_PROP1295', $headers)] ==  $format ) {
-                $row[$preview_picture_index] = $mainPathForImages . '/' . $pathImg[$key];
-                $row[$detail_picture_index] = $mainPathForImages . '/' . $pathImg[$key];
+            if ($row[array_search('IE_NAME', $headersTable)] == $_POST['productName'] && $row[array_search('IP_PROP1295', $headersTable)] ==  $format ) {
+                $row[$previewPictureIndex] = $mainPathForImages . $pathImg[$key];
+                $row[$detailPictureIndex] = $mainPathForImages . $pathImg[$key];
 
+                // получаем только цифры поля
+                $row[$newColumn] = preg_replace('/\D+/', '', $row[$idProduct]);
+
+                // добавляем изменненыую колонку в массив
                 array_unshift($arrayRowsForNewFile, $row);
-                $count++;
+                $countChangeRows++;
             }
         }
     }
 
-    if ($count == 0) {
+    if ($countChangeRows == 0) {
         echo '<center style="margin-top: 30px; color: white;"> <h3>Не найдены товары</h3> </center>';
         exit();
     }
 
+    //делаем название для файла из заголовка страницы
     $newFileName = getConvertString($_POST['productName']);
+
     $newFilePath = '../tables/' . $newFileName . '.csv';
 
-// Открытие файла для записи измененных данных
+    // Открытие файла для записи измененных данных
     $file = fopen('../tables/' . str_replace('/', '-', $newFileName) . '.csv', 'w');
 
-// Запись заголовков столбцов
-    fputcsv($file, $headers, $_POST['selectSeparator']);
+    fputcsv($file, $headersTable, $_POST['selectSeparator']);
 
-// Запись измененных строк таблицы
+    // Запись измененных строк таблицы
     foreach ($arrayRowsForNewFile as $row) {
         fputcsv($file, $row,  $_POST['selectSeparator']);
     }
 
-// Закрытие файла
     fclose($file);
 
-    echo '<center style="margin-top: 30px; color: white;"> <h3>кол-во измененных записей</h3>' . $count . '</center>' ;
+    echo '<center style="margin-top: 30px; color: white;"> <h3>кол-во измененных записей</h3>' . $countChangeRows . '</center>' ;
 } else {
    echo '<center style="margin-top: 30px; color: white;"> <h3>Вставьте все данные</h3> </center>';
 }
