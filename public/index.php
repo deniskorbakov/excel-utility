@@ -56,6 +56,13 @@
                 <option value="," selected>Разделить знаком - ( , )</option>
             </select>
         </div>
+
+        <div style="margin-top: 25px;">
+            <select name="isDelete" style="padding: 10px; font-size: 20px; color: #ffffff; background-color: rgba(211,14,14,0.5); border: none;">
+                <option value="false" selected>Удалить пустые торговые предложения - НЕТ</option>
+                <option value="true">Удалить пустые торговые предложения - ДА</option>
+            </select>
+        </div>
     </form>
 </center>
 
@@ -83,6 +90,8 @@
 <?php
 
 require './functions/translit.php';
+
+const IS_DELETE_EXTRA_TRADE_OFFER = 'true';
 const NEW_COLUMN_FOR_IMPORT_TABLE = "XML_ID";
 const NAME_COLUMN_FOR_NAME_PRODUCT = 'IE_NAME';
 const ID_PRODUCT_FOR_SUCCESS_IMPORT_TABLE = "IP_PROP1085";
@@ -136,18 +145,29 @@ if (isset($_POST['productName'], $_POST['formatName'], $_POST['headerTitle'])) {
                 //получаем цифры только в крадратных скобках
                 preg_match("/\[(\d+)\]/", $row[$idProduct], $matches);
 
-                //проверка чтобы не выпадала ошибка неизвестного ключа
-                if (!isset($matches[1])) {
-                    $result = null;
+                if(IS_DELETE_EXTRA_TRADE_OFFER === $_POST['isDelete']) {
+                    //проверка чтобы не выпадала ошибка неизвестного ключа
+                    if (isset($matches[1])) {
+                        $result = $matches[1];
+                        $row[$newColumn] = $result;
+
+                        // добавляем изменненыую колонку в массив
+                        array_unshift($arrayRowsForNewFile, $row);
+                        $countChangeRows++;
+                    }
                 } else {
-                    $result = $matches[1];
+                    if (!isset($matches[1])) {
+                        $result = null;
+                    } else {
+                        $result = $matches[1];
+                    }
+
+                    $row[$newColumn] = $result;
+
+                    // добавляем изменненыую колонку в массив
+                    array_unshift($arrayRowsForNewFile, $row);
+                    $countChangeRows++;
                 }
-
-                $row[$newColumn] = $result;
-
-                // добавляем изменненыую колонку в массив
-                array_unshift($arrayRowsForNewFile, $row);
-                $countChangeRows++;
             }
         }
     }
