@@ -26,6 +26,12 @@
         </div>
 
         <div style="margin-top: 30px">
+            <p style="color: white; font-size: 20px">Поле для товара заголовка в котором хранятся товары</p>
+
+            <input type="text" name="headerTitle" placeholder="Введите название заголовка" style="width: 500px;">
+        </div>
+
+        <div style="margin-top: 30px">
             <p style="color: white; font-size: 20px">Поле для товара к которому вы хотите добавить картинки</p>
 
             <input type="text" name="productName" placeholder="Введите название товара" style="width: 500px;">
@@ -78,11 +84,15 @@
 
 require './functions/translit.php';
 const NEW_COLUMN_FOR_IMPORT_TABLE = "XML_ID";
+const NAME_COLUMN_FOR_NAME_PRODUCT = 'IE_NAME';
 const ID_PRODUCT_FOR_SUCCESS_IMPORT_TABLE = "IP_PROP1085";
 const REPLACEMENT_ROW_IMAGE_PREVIEW = 'IE_PREVIEW_PICTURE';
 const REPLACEMENT_ROW_IMAGE_DETAIL = 'IE_DETAIL_PICTURE';
 
-if (isset($_POST['productName'], $_POST['formatName'])) {
+if (isset($_POST['productName'], $_POST['formatName'], $_POST['headerTitle'])) {
+    //добавляем название заголовка для продукта
+    $headerTitleFormatName = $_POST['headerTitle'];
+
     //убираем пустые строки
     $formatName = array_diff($_POST['formatName'], array(""));
     $pathImg = array_diff($_POST['pathImg'], array(""));
@@ -119,7 +129,7 @@ if (isset($_POST['productName'], $_POST['formatName'])) {
 
     foreach ($formatName as $key => $format) {
         foreach ($tableData as &$row) {
-            if ($row[array_search('IE_NAME', $headersTable)] == $_POST['productName'] && $row[array_search('IP_PROP1295', $headersTable)] ==  $format ) {
+            if ($row[array_search(NAME_COLUMN_FOR_NAME_PRODUCT, $headersTable)] == $_POST['productName'] && $row[array_search($headerTitleFormatName, $headersTable)] ==  $format ) {
                 $row[$previewPictureIndex] = $mainPathForImages . $pathImg[$key];
                 $row[$detailPictureIndex] = $mainPathForImages . $pathImg[$key];
 
