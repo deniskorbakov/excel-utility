@@ -183,7 +183,10 @@ if (isset($_POST['productName'], $_POST['formatName'], $_POST['headerTitle'])) {
     $newFilePath = '../tables/' . $newFileName . '.csv';
 
     // Открытие файла для записи измененных данных
-    $file = fopen('../tables/' . str_replace('/', '-', $newFileName) . '.csv', 'w');
+    $file = fopen($newFilePath, 'w');
+
+    //даем права на редактирование файла
+    chmod($newFilePath, 0777);
 
     fputcsv($file, $headersTable, $_POST['selectSeparator']);
 
