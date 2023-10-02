@@ -17,7 +17,7 @@ function getConvertString(string $value) : string
         'О' => 'O', 'П' => 'P', 'Р' => 'R', 'С' => 'S', 'Т' => 'T',
         'У' => 'U', 'Ф' => 'F', 'Х' => 'H', 'Ц' => 'C', 'Ч' => 'Ch',
         'Ш' => 'Sh', 'Щ' => 'Sch', 'Ь' => '', 'Ы' => 'Y', 'Ъ' => '',
-        'Э' => 'E', 'Ю' => 'Yu', 'Я' => 'Ya',
+        'Э' => 'E', 'Ю' => 'Yu', 'Я' => 'Ya', '/' => '-',
     ];
 
     return strtr($value, $converter);
