@@ -15,6 +15,11 @@
         body {
             background: #222222;
         }
+
+        a {
+            text-decoration: none;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -23,6 +28,11 @@
         <div>
             <button class="add-button" style="padding: 10px; font-size: 20px; color: #ffffff; background-color: #80109f; border: none;" type="button">Добавить еще поля</button>
             <button class="delete-inputs" type="button" style="padding: 10px; font-size: 20px; color: #ffffff; background-color: #9f1031; border: none;">Удалить последние поля</button>
+            <button type="button" style="padding: 10px; font-size: 20px; color: #ffffff; background-color: #109f85; border: none;">
+                <a href="/documentation.php">
+                    Документация
+                </a>
+            </button>
         </div>
 
         <div style="margin-top: 30px">
