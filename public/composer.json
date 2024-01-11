@@ -1,0 +1,15 @@
+{
+  "name": "vendor_name/excel-utility",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "deniskorbakov",
+      "email": "email@example.com"
+    }
+  ],
+  "require": {
+    "google/apiclient": "^2.15.0"
+  }
+}
